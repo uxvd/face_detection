@@ -13,6 +13,8 @@ var message = {
     NO_CAMERA:'No camera available'
 };
 
+var downsampleScale = 2;
+
 function hasGetUserMedia() {
     return !!(navigator.getUserMedia || navigator.webkitGetUserMedia ||
     navigator.mozGetUserMedia || navigator.msGetUserMedia);
@@ -37,8 +39,6 @@ var videoFrameInterval;
 
 //canvas overlayed on top of video
 var canvas = document.getElementById('overlaycanvas');
-canvas.width = 640;//hard coded
-canvas.height = 480;//hard coded
 var ctx = canvas.getContext('2d');
 
 var faceBox = document.getElementById('facebox');
@@ -58,19 +58,20 @@ if(navigator.getUserMedia){
 
             videoFrameInterval = window.setInterval(function(){
 
-                //var scale = Math.min(width / video.videoWidth, height / video.videoHeight, 1);
-                var tmpCanvas = document.createElement('canvas');
-                //tmpCanvas.height = video.videoHeight * scale;
-                //tmpCanvas.width = video.videoWidth * scale;
-                //tmpCanvas.getContext('2d').drawImage(video, 0, 0, video.videoWidth * scale, video.videoHeight * scale);
+                canvas.width = video.clientWidth;
+                canvas.height = video.clientHeight;
 
-                tmpCanvas.height = video.videoHeight/2;
-                tmpCanvas.width = video.videoWidth/2;
-                tmpCanvas.getContext('2d').drawImage(video, 0, 0, video.videoWidth/2, video.videoHeight/2);
+                //var scale = Math.min(canvas.width / video.videoWidth, canvas.height / video.videoHeight);
+
+                var tmpCanvas = document.createElement('canvas');
+
+                tmpCanvas.height = video.videoHeight;
+                tmpCanvas.width = video.videoWidth;
+                tmpCanvas.getContext('2d').drawImage(video, 0, 0, video.videoWidth, video.videoHeight);
 
                 detect(tmpCanvas.toDataURL('image/jpeg'), true);
 
-            }, 500);
+            }, 1000);
 
         },
         errorCallback);
@@ -81,16 +82,18 @@ else{
 }
 
 function clearCanvas() {
-    //ctx.fillStyle = '#EEE';
-    //ctx.fillRect(0, 0, width, height);
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-
 }
 
 function clearFaceBox(){
     while(faceBox.hasChildNodes()){
         faceBox.removeChild(faceBox.firstChild);
     }
+
+    //clear qtip
+    var nodes = document.getElementsByClassName('ui-tooltip-typify');
+    if(nodes.length>6)
+     $('.ui-tooltip-typify').remove();
 
 }
 

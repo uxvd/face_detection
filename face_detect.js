@@ -1,6 +1,9 @@
 /**
  * Created by rongrong.w on 4/28/15.
  */
+/*
+ * Reference: http://html5doctor.com/video-canvas-magic/
+ */
 
 //constants
 var API_URL = 'http://apius.faceplusplus.com/';
@@ -111,16 +114,18 @@ function drawFaces(imageInfo, faces) {
 
             var pointType = ['eye_left', 'eye_right', 'mouth_left', 'mouth_right'];
 
+            //var scale = Math.min(canvas.width / imageInfo.width, canvas.clientHeight / video.videoHeight, 1);
+
             // draw facial pointType
             ctx.fillStyle = rgbColor;
             for (var j = pointType.length - 1; j >= 0; j--) {
                 ctx.beginPath();
-                console.log("x:", imageInfo.offsetX + face.position[pointType[j]].x * imageInfo.width * 0.01);
-                console.log("y:",  imageInfo.offsetY + face.position[pointType[j]].y * imageInfo.height * 0.01);
-                console.log("r:", face.position.width * 0.01 * 6);
+                //console.log("x:", imageInfo.offsetX + face.position[pointType[j]].x * imageInfo.width * 0.01);
+                //console.log("y:",  imageInfo.offsetY + face.position[pointType[j]].y * imageInfo.height * 0.01);
+                //console.log("r:", face.position.width * 0.01 * 6);
                 ctx.arc(imageInfo.offsetX + face.position[pointType[j]].x * imageInfo.width * 0.01,
                     imageInfo.offsetY + face.position[pointType[j]].y * imageInfo.height * 0.01,
-                    face.position.width * 0.01 * 6, 0, Math.PI * 2);
+                    face.position.width * 0.01 * 10, 0, Math.PI * 2);
                 ctx.fill();
 
             }
@@ -129,7 +134,8 @@ function drawFaces(imageInfo, faces) {
             //        ")\nage:\t" + face.attribute.age.value + ' (&#177;' + face.attribute.age.range+
             //        ")\ngender:\t" + face.attribute.gender.value + ' (' + face.attribute.gender.confidence.toFixed(2)
             //        ")";
-            //ctx.beginPath();
+
+
             //ctx.fillText(faceInferredInfo,
             //    imageInfo.offsetY + (face.position.center.y - face.position.height / 2) * 0.01 * imageInfo.height - 5,
             //    imageInfo.offsetX + (face.position.center.x - face.position.width / 2) * 0.01 * imageInfo.width - 5);
@@ -149,7 +155,7 @@ function drawFaces(imageInfo, faces) {
                 //    content: '<table>' +
                 //    //'<tr><td>width</td><td>'        + (face.position.width * 0.01).toFixed(2) + '</td></tr>' +
                 //    //'<tr><td>height</td><td>'       + (face.position.height * 0.01).toFixed(2) + '</td></tr>' +
-                //    //'<tr><td>center</td><td>('      + (face.position.center.x      * 0.01).toFixed(2) + ', ' + (face.position.center.y      * 0.01).toFixed(2) + ')</td></tr>' +
+                //    '<tr><td>center</td><td>('      + (face.position.center.x      * 0.01).toFixed(2) + ', ' + (face.position.center.y      * 0.01).toFixed(2) + ')</td></tr>' +
                 //    //'<tr><td>eye_left</td><td>('    + (face.position.eye_left.x    * 0.01).toFixed(2) + ', ' + (face.position.eye_left.y    * 0.01).toFixed(2) + ')</td></tr>' +
                 //    //'<tr><td>eye_right</td><td>('   + (face.position.eye_right.x   * 0.01).toFixed(2) + ', ' + (face.position.eye_right.y   * 0.01).toFixed(2) + ')</td></tr>' +
                 //    //'<tr><td>mouth_left</td><td>('  + (face.position.mouth_left.x  * 0.01).toFixed(2) + ', ' + (face.position.mouth_left.y  * 0.01).toFixed(2) + ')</td></tr>' +
@@ -159,8 +165,8 @@ function drawFaces(imageInfo, faces) {
                 //    '<tr><td>gender</td><td>'       + face.attribute.gender.value + ' (' + face.attribute.gender.confidence.toFixed(2) + '%)</td></tr>' +
                 //    '</table>',
                 //    style: {
-                //        //classes: 'detector-tooltip ui-tooltip-light ui-tooltip-tipify'
-                //        classes:'ui-tootip-tipify'
+                //        //classes: 'detector-tooltip ui-tooltip-light ui-tooltip-typify'
+                //        classes:'ui-tooltip-typify'
                 //    },
                 //    position: {
                 //        my: 'bottom left',
@@ -169,6 +175,34 @@ function drawFaces(imageInfo, faces) {
                 //    show:{ready:true}
                 //}).
                 appendTo(faceBox);
+
+            console.log("race:\t"+ face.attribute.race.value + ' (' + face.attribute.race.confidence.toFixed(2)+')');
+            console.log("age:\t"+ face.attribute.age.value + ' (&#177;' + face.attribute.age.range+')');
+            console.log("gender:\t"+ face.attribute.gender.value + ' (' + face.attribute.gender.confidence.toFixed(2)+')');
+
+            if(face.attribute.race.value !== NaN && face.attribute.gender.value !== NaN && face.attribute.age.value !== NaN)
+            {
+                    var top = imageInfo.offsetY + (face.position.center.y - face.position.height / 2) * 0.01 * imageInfo.height - 5;
+                    var left = imageInfo.offsetX + (face.position.center.x - face.position.width / 2) * 0.01 * imageInfo.width - 5;
+
+                    ctx.font = "25px Arial";
+
+                    ctx.beginPath();
+
+                    ctx.fillText("race:\t" + face.attribute.race.value + ' (' + face.attribute.race.confidence.toFixed(2) + ')',
+                        left,
+                        top - 60);
+
+                    ctx.fillText("age:\t" + face.attribute.age.value + ' (' + face.attribute.age.range + ')',
+                        left,
+                        top - 30);
+
+                    ctx.fillText("gender:\t" + face.attribute.gender.value + ' (' + face.attribute.gender.confidence.toFixed(2) + ')',
+                        left,
+                        top);
+
+            }
+
         }
     }
     //stopLoading();
@@ -191,11 +225,15 @@ function detect(src, dataURI) {
         success:function(faces){
             console.log(faces);
 
+            //console.log("video.offsetWidth", video.clientWidth);
+            //console.log("video.offsetHeight", video.clientHeight);
+            var scale = Math.min(canvas.width/currentImg.width, canvas.height/currentImg.height);
+
             var imageInfo = {
-                width: currentImg.width*2,
-                height: currentImg.height*2,
-                offsetX: 0,
-                offsetY: 0
+                width: currentImg.width*scale,
+                height: currentImg.height*scale,
+                offsetX: (canvas.width-currentImg.width*scale)/2,
+                offsetY: (canvas.height-currentImg.height*scale)/2
             };
 
             drawFaces(imageInfo, faces.face);
